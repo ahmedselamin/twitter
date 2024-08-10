@@ -61,6 +61,7 @@ public class TweetService : ITweetService
 
             await _context.SaveChangesAsync();
 
+            response.Message = "Tweet Created";
             response.Data = newTweet;
         }
         catch (Exception ex)
@@ -75,6 +76,7 @@ public class TweetService : ITweetService
     public async Task<ServiceResponse<Tweet>> UpdateTweet(int id, Tweet UpdatedTweet)
     {
         var response = new ServiceResponse<Tweet>();
+
         try
         {
             var tweet = await _context.Tweets.FindAsync(id);
@@ -88,6 +90,7 @@ public class TweetService : ITweetService
             tweet.Title = UpdatedTweet.Title;
             tweet.Description = UpdatedTweet.Description;
 
+            response.Message = "Updated Successfully";
             response.Data = UpdatedTweet;
         }
         catch (Exception ex)
@@ -114,6 +117,9 @@ public class TweetService : ITweetService
 
             _context.Tweets.Remove(tweet);
             await _context.SaveChangesAsync();
+
+            response.Message = "Deleted Successfully.";
+            response.Data = true;
         }
         catch (Exception ex)
         {
