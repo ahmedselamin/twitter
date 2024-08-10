@@ -1,8 +1,6 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from "react-router-dom"
-import { Button, Form } from "react-bootstrap"
-import Modal from "react-bootstrap/Modal"
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Container, Row, Col, Card, Spinner, Alert } from 'react-bootstrap';
 
 function Tweets() {
     const [tweets, setTweets] = useState([]);
@@ -12,7 +10,7 @@ function Tweets() {
     useEffect(() => {
         const fetchTweets = async () => {
             try {
-                const response = await axios.get('https://localhost:7227/api/Tweet')
+                const response = await axios.get('https://localhost:7227/api/tweet');
                 if (response.data.success) {
                     setTweets(response.data.data);
                 } else {
@@ -28,22 +26,29 @@ function Tweets() {
         fetchTweets();
     }, []);
 
-    if (loading) return <p>Loading tweets...</p>;
-    if (error) return <p>Error: {error}</p>;
+    if (loading) return <Spinner animation="border" />;
+
+    if (error) return <Alert variant="danger">{error}</Alert>;
 
     return (
-        <div>
-            <h1>Tweets</h1>
-            <ul>
+        <Container>
+            <h1 className="my-4">Tweets</h1>
+            <Row>
                 {tweets.map((tweet) => (
-                    <li key={tweet.id}>
-                        <h3>{tweet.title}</h3>
-                        <p>{tweet.description}</p>
-                        <small>{new Date(tweet.createdAt).toLocaleString()}</small>
-                    </li>
+                    <Col key={tweet.id} md={4} className="mb-4">
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>{tweet.title}</Card.Title>
+                                <Card.Text>{tweet.description}</Card.Text>
+                                <Card.Footer className="text-muted">
+                                    {new Date(tweet.createdAt).toLocaleString()}
+                                </Card.Footer>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 ))}
-            </ul>
-        </div>
+            </Row>
+        </Container>
     );
 }
 
