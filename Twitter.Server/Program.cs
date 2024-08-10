@@ -1,6 +1,7 @@
 global using Microsoft.EntityFrameworkCore;
 global using Twitter.Server.Data;
 global using Twitter.Server.Models;
+using Twitter.Server.TweetService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +16,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+//registering services
+builder.Services.AddScoped<ITweetService, TweetService>();
 
 var app = builder.Build();
 
