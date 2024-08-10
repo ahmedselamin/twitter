@@ -11,7 +11,7 @@ function App() {
             <Button
                 variant="outline-success"
                 style={{ width: "90%" }}
-                onClick={() => navigate("create")}
+                onClick={() => navigate("tweets")}
             >
                 NEXT
             </Button>
