@@ -15,7 +15,9 @@ public class TweetService : ITweetService
         var response = new ServiceResponse<List<Tweet>>();
         try
         {
-            response.Data = await _context.Tweets.ToListAsync();
+            response.Data = await _context.Tweets
+                .OrderByDescending(t => t.CreatedAt)
+                .ToListAsync();
         }
         catch (Exception ex)
         {
