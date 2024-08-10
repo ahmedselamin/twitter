@@ -53,12 +53,16 @@ function TweetsPage() {
 
     const handleDeleteTweet = async (id) => {
         try {
-            const response = await axios.delete(`https://localhost:7227/api/tweet/${id}`);
 
-            if (response.data.success) {
-                setTweets((prev) => prev.filter((tweet) => tweet.id !== id));
-            } else {
-                setError(response.data.message);
+            if (window.confirm("are you sure you want to delete this Tweet?"))
+            {
+                const response = await axios.delete(`https://localhost:7227/api/tweet/${id}`);
+
+                if (response.data.success) {
+                    setTweets((prev) => prev.filter((tweet) => tweet.id !== id));
+                } else {
+                    setError(response.data.message);
+                }
             }
         } catch (err) {
             console.error("Delete error:", err);
