@@ -38,7 +38,8 @@ public class TweetService : ITweetService
             if (tweet == null)
             {
                 response.Success = false;
-                response.Message = "Not Found";
+                response.Message = "Not found";
+                return response;
             }
 
             response.Data = tweet;
@@ -85,13 +86,17 @@ public class TweetService : ITweetService
             {
                 response.Success = false;
                 response.Message = "Not found";
+                return response;
             }
 
             tweet.Title = UpdatedTweet.Title;
             tweet.Description = UpdatedTweet.Description;
 
+            await _context.SaveChangesAsync();
+
+            response.Success = true;
             response.Message = "Updated Successfully";
-            response.Data = UpdatedTweet;
+            response.Data = tweet;
         }
         catch (Exception ex)
         {
@@ -101,6 +106,7 @@ public class TweetService : ITweetService
 
         return response;
     }
+
 
     public async Task<ServiceResponse<bool>> DeleteTweet(int id)
     {
@@ -113,6 +119,7 @@ public class TweetService : ITweetService
             {
                 response.Success = false;
                 response.Message = "Not found";
+                return response;
             }
 
             _context.Tweets.Remove(tweet);
