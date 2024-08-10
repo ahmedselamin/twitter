@@ -43,7 +43,7 @@ namespace Twitter.Server.Controllers
             return Ok(response);
         }
 
-        [HttpPut("id")]
+        [HttpPut("{id}")]
         public async Task<ActionResult<ServiceResponse<Tweet>>> UpdateTweet(int id, Tweet updatedTweet)
         {
             var response = await _tweetService.UpdateTweet(id, updatedTweet);
@@ -56,7 +56,7 @@ namespace Twitter.Server.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public async Task<ActionResult<ServiceResponse<bool>>> DeleteTweet(int id)
         {
             var response = await _tweetService.DeleteTweet(id);

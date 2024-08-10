@@ -1,52 +1,68 @@
 import React, { useState, useEffect } from 'react';
+import { Card, Button, Container, Row, Col, Modal, Form } from 'react-bootstrap';
 import axios from 'axios';
-import { Container, Card, Spinner, Alert, Button, Modal, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
 
 function TweetsPage() {
     const [tweets, setTweets] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [showCreateModal, setShowCreateModal] = useState(false);
-    const [showUpdateModal, setShowUpdateModal] = useState(false);
-    const [newTweet, setNewTweet] = useState({
-        title: '',
-        description: ''
-    });
     const [tweetToUpdate, setTweetToUpdate] = useState(null);
-    const navigate = useNavigate();
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    const [newTweet, setNewTweet] = useState({ title: '', description: '' });
+    const [error, setError] = useState('');
 
     useEffect(() => {
         const fetchTweets = async () => {
             try {
-                const response = await axios.get('https://localhost:7227/api/tweet');
-                if (response.data.success) {
-                    setTweets(response.data.data);
-                } else {
-                    setError(response.data.message);
-                }
+                const response = await axios.get('https://localhost:7227/api/Tweet');
+                setTweets(response.data.data);
             } catch (err) {
+                console.error("Fetch error:", err);
                 setError('Failed to fetch tweets');
-            } finally {
-                setLoading(false);
             }
         };
 
         fetchTweets();
     }, []);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        if (showUpdateModal && tweetToUpdate) {
-            setTweetToUpdate((prev) => ({
-                ...prev,
-                [name]: value
-            }));
-        } else {
-            setNewTweet((prev) => ({
-                ...prev,
-                [name]: value
-            }));
+    const handleUpdateTweet = async (e) => {
+        e.preventDefault();
+        if (!tweetToUpdate) return;
+
+        try {
+            const response = await axios.put(
+                `https://localhost:7227/api/Tweet/${tweetToUpdate.id}`,
+                tweetToUpdate
+            );
+
+            if (response.data.success) {
+                setTweets((prev) =>
+                    prev.map((tweet) =>
+                        tweet.id === response.data.data.id ? response.data.data : tweet
+                    )
+                );
+                setTweetToUpdate(null);
+                setShowUpdateModal(false);
+            } else {
+                setError(response.data.message);
+            }
+        } catch (err) {
+            console.error("Update error:", err);
+            setError('Failed to update tweet');
+        }
+    };
+
+    const handleDeleteTweet = async (id) => {
+        try {
+            const response = await axios.delete(`https://localhost:7227/api/tweet/${id}`);
+
+            if (response.data.success) {
+                setTweets((prev) => prev.filter((tweet) => tweet.id !== id));
+            } else {
+                setError(response.data.message);
+            }
+        } catch (err) {
+            console.error("Delete error:", err);
+            setError('Failed to delete tweet');
         }
     };
 
@@ -62,131 +78,69 @@ function TweetsPage() {
                 setError(response.data.message);
             }
         } catch (err) {
+            console.error("Create error:", err);
             setError('Failed to create tweet');
         }
     };
 
-    const handleUpdateTweet = async (e) => {
-        e.preventDefault();
-        if (!tweetToUpdate) return; // Ensure tweetToUpdate is defined
-        try {
-            const response = await axios.put(`https://localhost:7227/api/tweet/${tweetToUpdate.id}`, tweetToUpdate);
-            if (response.data.success) {
-                setTweets((prev) => prev.map((tweet) =>
-                    tweet.id === response.data.data.id ? response.data.data : tweet
-                ));
-                setTweetToUpdate(null);
-                setShowUpdateModal(false);
-            } else {
-                setError(response.data.message);
-            }
-        } catch (err) {
-            setError('Failed to update tweet');
-        }
-    };
-
-    const handleDeleteTweet = async (id) => {
-        try {
-            const response = await axios.delete(`https://localhost:7227/api/tweet/${id}`);
-            if (response.data.success) {
-                setTweets((prev) => prev.filter((tweet) => tweet.id !== id));
-            } else {
-                setError(response.data.message);
-            }
-        } catch (err) {
-            setError('Failed to delete tweet');
-        }
-    };
-
-    if (loading) return <Spinner animation="border" />;
-
-    if (error) return <Alert variant="danger">{error}</Alert>;
-
     return (
         <Container>
-            <h1 className="my-4 text-center">Tweets</h1>
-            <div className="text-center mb-4">
-                <Button
-                    onClick={() => setShowCreateModal(true)}
-                    variant="outline-primary"
-                    style={{ width: '100%' }}
-                >
-                    Create Tweet
-                </Button>
-            </div>
-            <div>
+            <Row className="justify-content-center mt-4">
                 {tweets.map((tweet) => (
-                    <Card key={tweet.id} className="mb-4">
-                        <Card.Body>
-                            <Card.Title>{tweet.title}</Card.Title>
-                            <Card.Text>{tweet.description}</Card.Text>
-                            <Card.Footer className="text-muted">
-                                {new Date(tweet.createdAt).toLocaleString()}
-                                <div className="mt-2 d-flex justify-content-between">
-                                    <Button
-                                        variant="outline-warning"
-                                        onClick={() => {
-                                            setTweetToUpdate(tweet);
-                                            setShowUpdateModal(true);
-                                        }}
-                                    >
-                                        Update
-                                    </Button>
-                                    <Button
-                                        variant="outline-danger"
-                                        onClick={() => handleDeleteTweet(tweet.id)}
-                                    >
-                                        Delete
-                                    </Button>
-                                </div>
-                            </Card.Footer>
-                        </Card.Body>
-                    </Card>
+                    <Col key={tweet.id} xs={12} md={6} lg={4} className="mb-4">
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>{tweet.title}</Card.Title>
+                                <Card.Text>{tweet.description}</Card.Text>
+                                <Button
+                                    variant="warning"
+                                    className="me-2"
+                                    onClick={() => {
+                                        setTweetToUpdate(tweet);
+                                        setShowUpdateModal(true);
+                                    }}
+                                >
+                                    Update
+                                </Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={() => handleDeleteTweet(tweet.id)}
+                                >
+                                    Delete
+                                </Button>
+                            </Card.Body>
+                        </Card>
+                    </Col>
                 ))}
-            </div>
-            <div className="text-center mt-4">
-                <Button
-                    onClick={() => navigate('/')}
-                    variant="outline-primary"
-                    style={{ width: '100%' }}
-                >
-                    Back to Home
-                </Button>
-            </div>
+            </Row>
 
             {/* Create Tweet Modal */}
             <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Create New Tweet</Modal.Title>
+                    <Modal.Title>Create Tweet</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form onSubmit={handleCreateTweet}>
                         <Form.Group controlId="formTitle">
-                            <Form.Label>Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="title"
+                                placeholder="Title"
                                 value={newTweet.title}
-                                onChange={handleChange}
-                                placeholder="Enter title"
+                                onChange={(e) => setNewTweet({ ...newTweet, title: e.target.value })}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="formDescription" className="mt-3">
-                            <Form.Label>Description</Form.Label>
+                        <Form.Group controlId="formDescription" className="mt-2">
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                name="description"
+                                placeholder="Description"
                                 value={newTweet.description}
-                                onChange={handleChange}
-                                placeholder="Enter description"
+                                onChange={(e) => setNewTweet({ ...newTweet, description: e.target.value })}
+                                required
                             />
                         </Form.Group>
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            className="mt-3"
-                        >
+                        <Button variant="primary" type="submit" className="mt-3">
                             Create
                         </Button>
                     </Form>
@@ -201,31 +155,25 @@ function TweetsPage() {
                 <Modal.Body>
                     <Form onSubmit={handleUpdateTweet}>
                         <Form.Group controlId="formTitle">
-                            <Form.Label>Title</Form.Label>
                             <Form.Control
                                 type="text"
-                                name="title"
+                                placeholder="Title"
                                 value={tweetToUpdate?.title || ''}
-                                onChange={handleChange}
-                                placeholder="Enter title"
+                                onChange={(e) => setTweetToUpdate({ ...tweetToUpdate, title: e.target.value })}
+                                required
                             />
                         </Form.Group>
-                        <Form.Group controlId="formDescription" className="mt-3">
-                            <Form.Label>Description</Form.Label>
+                        <Form.Group controlId="formDescription" className="mt-2">
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                name="description"
+                                placeholder="Description"
                                 value={tweetToUpdate?.description || ''}
-                                onChange={handleChange}
-                                placeholder="Enter description"
+                                onChange={(e) => setTweetToUpdate({ ...tweetToUpdate, description: e.target.value })}
+                                required
                             />
                         </Form.Group>
-                        <Button
-                            variant="primary"
-                            type="submit"
-                            className="mt-3"
-                        >
+                        <Button variant="primary" type="submit" className="mt-3">
                             Update
                         </Button>
                     </Form>
