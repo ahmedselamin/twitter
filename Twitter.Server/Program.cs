@@ -1,5 +1,6 @@
 global using Microsoft.EntityFrameworkCore;
-using Twitter.Server.Data;
+global using Twitter.Server.Data;
+global using Twitter.Server.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
