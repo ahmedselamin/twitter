@@ -9,6 +9,7 @@ function TweetsPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [newTweet, setNewTweet] = useState({ title: '', description: '' });
     const [error, setError] = useState('');
+    //this grabs the tweets
 
     useEffect(() => {
         const fetchTweets = async () => {
@@ -121,7 +122,7 @@ function TweetsPage() {
         element.innerText = text;
         document.body.appendChild(element);
 
-        const lineHeight = parseInt(window.getComputedStyle(element).lineHeight, 10);
+        const lineHeight = parseInt(window.getComputedStyle(element).lineHeight, 5);
         const height = element.scrollHeight;
         document.body.removeChild(element);
 
@@ -130,7 +131,7 @@ function TweetsPage() {
 
     return (
         <Container>
-            <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Yappings</h1>
+            <h1 style={{ textAlign: 'center', marginBottom: '2rem' }}>Twitter</h1>
 
             <Button
                 variant="outline-dark"

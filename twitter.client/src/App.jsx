@@ -8,9 +8,14 @@ function App() {
     return (
         <div className="App">
             <h1>Home page</h1>
+            <h1
+                style={{ marginTop: "6rem" }}
+            >
+                Say Whatever You Want, Anonymously!
+            </h1>
             <Button
                 variant="outline-success"
-                style={{ width: "90%" }}
+                style={{ marginTop: "6rem", width: "50%" }}
                 onClick={() => navigate("tweets")}
             >
                 NEXT
